@@ -7,6 +7,7 @@
 //
 
 #import "AppDelegate.h"
+#import <QuartzCore/QuartzCore.h>
 
 @implementation AppDelegate
 {
@@ -24,6 +25,9 @@
     GLKView *view = [[GLKView alloc] initWithFrame:[[UIScreen mainScreen] bounds]];
     view.context = context;
     view.delegate = self;
+    view.enableSetNeedsDisplay = NO;
+    CADisplayLink *displayLink = [CADisplayLink displayLinkWithTarget:self selector:@selector(render:)];
+    [displayLink addToRunLoop:[NSRunLoop currentRunLoop] forMode:NSDefaultRunLoopMode];
     [self.window addSubview:view];
 
     self.window.backgroundColor = [UIColor whiteColor];
@@ -70,12 +74,19 @@
         _wellsRed = 1.0;
         _inLogo = NO;
     }
-    if (<#condition#>) {
-        <#statements#>
+    if (_wellsRed <= 0.0) {
+        _wellsRed = 0.0;
+        _inLogo = YES;
     }
-    glClearColor(1.0, 0.0, 0.0, 1.0);
+    glClearColor(_wellsRed, 0.0, 0.0, 1.0);
     glClear(GL_COLOR_BUFFER_BIT);
     
+}
+
+-(void)render:(CADisplayLink*)displayLink
+{
+    GLKView *view = [self.window.subviews objectAtIndex:0];
+    [view display];
 }
 
 @end
