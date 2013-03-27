@@ -19,17 +19,25 @@
 {
     _inLogo = YES;
     _wellsRed = 0.0;
+    
     self.window = [[UIWindow alloc] initWithFrame:[[UIScreen mainScreen] bounds]];
     
     EAGLContext *context = [[EAGLContext alloc] initWithAPI:kEAGLRenderingAPIOpenGLES2];
     GLKView *view = [[GLKView alloc] initWithFrame:[[UIScreen mainScreen] bounds]];
     view.context = context;
     view.delegate = self;
-    view.enableSetNeedsDisplay = NO;
-    CADisplayLink *displayLink = [CADisplayLink displayLinkWithTarget:self selector:@selector(render:)];
-    [displayLink addToRunLoop:[NSRunLoop currentRunLoop] forMode:NSDefaultRunLoopMode];
-    [self.window addSubview:view];
+    //[self.window addSubview:view];
+    
+    //view.enableSetNeedsDisplay = NO;
+    //CADisplayLink *displayLink = [CADisplayLink displayLinkWithTarget:self selector:@selector(render:)];
+    //[displayLink addToRunLoop:[NSRunLoop currentRunLoop] forMode:NSDefaultRunLoopMode];
 
+    GLKViewController *viewController = [[GLKViewController alloc] initWithNibName:nil bundle:nil];
+    viewController.view = view;
+    viewController.delegate = self;
+    viewController.preferredFramesPerSecond = 60;
+    self.window.rootViewController = viewController;
+    
     self.window.backgroundColor = [UIColor whiteColor];
     [self.window makeKeyAndVisible];
     return YES;
@@ -81,6 +89,23 @@
     glClearColor(_wellsRed, 0.0, 0.0, 1.0);
     glClear(GL_COLOR_BUFFER_BIT);
     
+}
+
+- (void)glkViewControllerUpdate:(GLKViewController *)controller
+{
+    if (_inLogo) {
+        _wellsRed += 1.0 * controller.timeSinceLastUpdate;
+    } else {
+        _wellsRed -= 1.0 * controller.timeSinceLastUpdate;
+    }
+    if (_wellsRed >= 1.0) {
+        _wellsRed = 1.0;
+        _inLogo = NO;
+    }
+    if (_wellsRed <= 0.0) {
+        _wellsRed = 0.0;
+        _inLogo = YES;
+    }
 }
 
 -(void)render:(CADisplayLink*)displayLink
